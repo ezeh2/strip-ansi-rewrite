@@ -3,7 +3,14 @@
 /// Return `input` with ANSI control sequences removed.
 pub fn strip_ansi(input: &str) -> String {
     let bytes = input.as_bytes();
-    if !bytes.iter().any(|&byte| byte == 0x1B || byte == 0x9B) {
+    if !bytes.iter().enumerate().any(|(index, &byte)| {
+        byte == 0x1B
+            || byte == 0x9B
+            || (byte == 0xC2
+                && bytes
+                    .get(index + 1)
+                    .is_some_and(|next| matches!(next, 0x90 | 0x98 | 0x9B | 0x9D | 0x9E | 0x9F)))
+    }) {
         return input.to_owned();
     }
 
@@ -26,6 +33,10 @@ fn sequence_end(bytes: &[u8], start: usize) -> Option<usize> {
         0x9B => csi_end(bytes, start + 1),
         // C1 controls are encoded as two-byte UTF-8 sequences in a Rust `&str`.
         0xC2 if bytes.get(start + 1) == Some(&0x9B) => csi_end(bytes, start + 2),
+        0xC2 if bytes.get(start + 1) == Some(&0x9D) => osc_end(bytes, start + 2),
+        0xC2 if matches!(bytes.get(start + 1), Some(0x90 | 0x98 | 0x9E | 0x9F)) => {
+            control_string_end(bytes, start + 2)
+        }
         0x1B => escape_end(bytes, start),
         _ => None,
     }
@@ -113,6 +124,19 @@ mod tests {
     #[test]
     fn strips_osc_hyperlinks() {
         assert_eq!(strip_ansi("\x1b]8;;https://example.com\x07link\x1b]8;;\x07"), "link");
+    }
+
+    #[test]
+    fn strips_utf8_encoded_c1_controls() {
+        assert_eq!(strip_ansi("\u{009B}31mred\u{009B}0m"), "red");
+        assert_eq!(
+            strip_ansi("\u{001B}[0m\u{009D}0;title\u{0007}visible"),
+            "visible"
+        );
+        assert_eq!(
+            strip_ansi("\u{001B}[0m\u{0090}opaque\u{009C}visible"),
+            "visible"
+        );
     }
 
     #[test]
