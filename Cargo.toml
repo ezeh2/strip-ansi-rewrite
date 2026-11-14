@@ -1,0 +1,18 @@
+[package]
+name = "strip-ansi-rewrite"
+version = "0.1.0"
+edition = "2021"
+description = "A dependency-free Rust implementation of strip-ansi"
+license = "MIT"
+
+[lib]
+name = "strip_ansi"
+path = "src/lib.rs"
+
+[[bin]]
+name = "strip-ansi"
+path = "src/main.rs"
+
+[profile.release]
+lto = true
+codegen-units = 1
