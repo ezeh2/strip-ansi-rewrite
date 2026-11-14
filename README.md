@@ -32,3 +32,5 @@ This is an active compatibility rewrite. Passing the current corpus does not pro
 ## Background
 
 See [REWRITE_RATIONALE.md](REWRITE_RATIONALE.md) for the general reasons, tradeoffs, and evaluation criteria for rewriting npm packages in another language.
+
+See [ADVERSARIAL_INPUTS.md](ADVERSARIAL_INPUTS.md) for malformed and boundary cases used to stress-test both implementations.

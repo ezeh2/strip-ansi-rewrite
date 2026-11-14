@@ -94,6 +94,8 @@ Every discovered mismatch should become a permanent regression test, with the ch
 
 ## 6. Fuzz and malformed-input testing
 
+Maintain the reviewed adversarial corpus in [ADVERSARIAL_INPUTS.md](ADVERSARIAL_INPUTS.md). It should cover malformed escape sequences, Unicode boundaries, control-string terminators, large inputs, timeouts, and resource observations.
+
 Exercise the parser with arbitrary byte patterns and unusual escape sequences.
 
 Verify that it:
