@@ -60,7 +60,13 @@ fn escape_end(bytes: &[u8], start: usize) -> Option<usize> {
     let next = *bytes.get(start + 1)?;
     match next {
         b'[' => csi_end(bytes, start + 2),
-        b']' => osc_end(bytes, start + 2),
+        b']' => {
+            if let Some(end) = linux_palette_end(bytes, start) {
+                Some(end)
+            } else {
+                osc_end(bytes, start + 2)
+            }
+        }
         b'P' | b'X' | b'^' | b'_' | b'k' => control_string_end(bytes, start + 2),
         b' ' ..= b'/' => {
             let mut index = start + 1;
@@ -91,6 +97,27 @@ fn osc_end(bytes: &[u8], mut index: usize) -> Option<usize> {
         }
     }
     None
+}
+
+fn linux_palette_end(bytes: &[u8], start: usize) -> Option<usize> {
+    let kind = *bytes.get(start + 2)?;
+    let payload_end = match kind {
+        b'R' => start + 3,
+        b'P' if start + 10 <= bytes.len()
+            && bytes[start + 3..start + 10]
+                .iter()
+                .all(|byte| byte.is_ascii_hexdigit()) =>
+        {
+            start + 10
+        }
+        _ => return None,
+    };
+
+    match bytes.get(payload_end) {
+        Some(0x07) => Some(payload_end + 1),
+        Some(0x1B) if bytes.get(payload_end + 1) == Some(&b'\\') => Some(payload_end + 2),
+        _ => Some(payload_end),
+    }
 }
 
 fn control_string_end(bytes: &[u8], mut index: usize) -> Option<usize> {
@@ -137,6 +164,12 @@ mod tests {
             strip_ansi("\u{001B}[0m\u{0090}opaque\u{009C}visible"),
             "visible"
         );
+    }
+
+    #[test]
+    fn strips_linux_palette_controls_without_a_terminator() {
+        assert_eq!(strip_ansi("\x1b]P1234567visible"), "visible");
+        assert_eq!(strip_ansi("\x1b]Rvisible"), "visible");
     }
 
     #[test]

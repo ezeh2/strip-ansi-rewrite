@@ -20,6 +20,8 @@ const cases = [
   '\u001B]8;;https://example.com\u0007link\u001B]8;;\u0007',
   '\u001B]0;window title\u0007visible',
   '\u001BPopaque payload\u001B\\visible',
+  '\u001B]P1234567visible',
+  '\u001B]Rvisible',
   '\u001B7saved\u001B8restored',
   'before\u001B[31',
   'before\u001B]unterminated after',
