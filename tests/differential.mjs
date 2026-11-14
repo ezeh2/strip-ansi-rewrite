@@ -37,6 +37,22 @@ const cases = [
   '\u001B[31mred\u001B[0m and \u001B[32mgreen\u001B[0m',
 ];
 
+for (const parameter of ['', '0', '1', '1;31', '?25', '>0;276;0']) {
+  for (const final of ['A', 'm', 'l', '~']) {
+    cases.push(`before\u001B[${parameter}${final}after`);
+  }
+}
+
+for (const payload of ['', 'title', '0;https://example.com', 'payload with spaces']) {
+  cases.push(`before\u001B]${payload}\u0007after`);
+  cases.push(`before\u001B]${payload}\u001B\\after`);
+}
+
+for (const prefix of ['P', 'X', '^', '_', 'k']) {
+  cases.push(`before\u001B${prefix}payload\u001B\\after`);
+  cases.push(`before\u001B${prefix}payload\u009Cafter`);
+}
+
 for (const input of cases) {
   const expected = stripAnsi(input);
   const actual = execFileSync(binary, [], {input, encoding: 'utf8'});
