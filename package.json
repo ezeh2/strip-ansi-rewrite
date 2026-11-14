@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node demo.mjs",
-    "test": "node demo.mjs"
+    "test": "node demo.mjs",
+    "test:differential": "cargo build --offline --quiet && node tests/differential.mjs"
   },
   "author": "",
   "license": "ISC",

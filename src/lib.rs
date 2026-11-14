@@ -24,6 +24,8 @@ pub fn strip_ansi(input: &str) -> String {
 fn sequence_end(bytes: &[u8], start: usize) -> Option<usize> {
     match bytes[start] {
         0x9B => csi_end(bytes, start + 1),
+        // C1 controls are encoded as two-byte UTF-8 sequences in a Rust `&str`.
+        0xC2 if bytes.get(start + 1) == Some(&0x9B) => csi_end(bytes, start + 2),
         0x1B => escape_end(bytes, start),
         _ => None,
     }
@@ -69,7 +71,11 @@ fn osc_end(bytes: &[u8], mut index: usize) -> Option<usize> {
     while index < bytes.len() {
         match bytes[index] {
             0x07 | 0x9C => return Some(index + 1),
+            0xC2 if bytes.get(index + 1) == Some(&0x9C) => return Some(index + 2),
             0x18 | 0x1A | 0x1B | 0x80..=0x9F => return None,
+            0xC2 if bytes.get(index + 1).is_some_and(|byte| (0x80..=0x9F).contains(byte)) => {
+                return None
+            }
             _ => index += 1,
         }
     }
@@ -83,6 +89,9 @@ fn control_string_end(bytes: &[u8], mut index: usize) -> Option<usize> {
         }
         if bytes[index] == 0x9C {
             return Some(index + 1);
+        }
+        if bytes[index] == 0xC2 && bytes.get(index + 1) == Some(&0x9C) {
+            return Some(index + 2);
         }
         if bytes[index] == 0x18 || bytes[index] == 0x1A || bytes[index] == 0x1B {
             return None;
