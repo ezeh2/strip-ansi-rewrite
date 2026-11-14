@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node demo.mjs",
     "test": "node demo.mjs",
-    "test:differential": "cargo build --offline --quiet && node tests/differential.mjs"
+    "test:differential": "cargo build --offline --quiet && node tests/differential.mjs",
+    "flower:npm": "node --input-type=module -e \"import fs from 'node:fs'; import stripAnsi from 'strip-ansi'; process.stdout.write(stripAnsi(fs.readFileSync('examples/flower-garden.ans', 'utf8')));\""
   },
   "author": "",
   "license": "ISC",
