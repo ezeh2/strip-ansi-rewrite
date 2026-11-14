@@ -89,6 +89,7 @@ fn osc_end(bytes: &[u8], mut index: usize) -> Option<usize> {
         match bytes[index] {
             0x07 | 0x9C => return Some(index + 1),
             0xC2 if bytes.get(index + 1) == Some(&0x9C) => return Some(index + 2),
+            0x1B if bytes.get(index + 1) == Some(&b'\\') => return Some(index + 2),
             0x18 | 0x1A | 0x1B | 0x80..=0x9F => return None,
             0xC2 if bytes.get(index + 1).is_some_and(|byte| (0x80..=0x9F).contains(byte)) => {
                 return None
