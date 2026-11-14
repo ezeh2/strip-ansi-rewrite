@@ -28,3 +28,7 @@ npm run test:differential
 The differential suite uses npm `strip-ansi` as an oracle and compares exact output for representative CSI, OSC, C1, control-string, malformed, Unicode, and plain-text inputs.
 
 This is an active compatibility rewrite. Passing the current corpus does not prove complete compatibility with every possible ANSI sequence.
+
+## Background
+
+See [REWRITE_RATIONALE.md](REWRITE_RATIONALE.md) for the general reasons, tradeoffs, and evaluation criteria for rewriting npm packages in another language.
