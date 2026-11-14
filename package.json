@@ -1,0 +1,15 @@
+{
+  "name": "strip-ansi-rewrite",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node demo.mjs",
+    "test": "node demo.mjs"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "strip-ansi": "^7.2.0"
+  }
+}
